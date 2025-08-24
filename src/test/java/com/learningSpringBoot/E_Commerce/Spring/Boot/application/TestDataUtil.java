@@ -5,8 +5,6 @@ import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.ProductEntity;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @NoArgsConstructor
 public class TestDataUtil {
 
