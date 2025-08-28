@@ -2,13 +2,12 @@ package com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entitie
 
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -23,14 +22,14 @@ public class CategoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer categoryId;
 
-    @Size(min = 3)
+    @NotBlank(message = "Category name is required")
+    @Column(nullable = false, unique = true, length = 50)
     private String name;
 
-    @Size(min = 10)
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @OneToMany(mappedBy = "categoryEntity",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<ProductEntity> productEntities = new ArrayList<>();
-
+    // Inverse side of Category <-> Product relation
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductEntity> products;
 }
