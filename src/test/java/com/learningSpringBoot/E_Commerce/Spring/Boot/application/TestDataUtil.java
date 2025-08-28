@@ -13,7 +13,7 @@ public class TestDataUtil {
         return CategoryEntity.builder()
                 .name("Sports")
                 .description("Sports equipment and accessories")
-                .productEntities(null)
+                .products(null)
                 .build();
     }
 
@@ -57,7 +57,7 @@ public class TestDataUtil {
                 .name("Laptop")
                 .description("High-performance gaming laptop")
                 .price(1299.99)
-                .categoryEntity(category)
+                .category(category)
                 .stockQuantity(50)
                 .imageUrl("https://example.com/laptop.jpg")
                 .build();
@@ -68,7 +68,7 @@ public class TestDataUtil {
                 .name("Smartphone")
                 .description("Latest smartphone with advanced features")
                 .price(899.99)
-                .categoryEntity(category)
+                .category(category)
                 .stockQuantity(100)
                 .imageUrl("https://example.com/smartphone.jpg")
                 .build();
@@ -79,7 +79,7 @@ public class TestDataUtil {
                 .name("T-Shirt")
                 .description("Cotton t-shirt with premium quality")
                 .price(29.99)
-                .categoryEntity(category)
+                .category(category)
                 .stockQuantity(200)
                 .imageUrl("https://example.com/tshirt.jpg")
                 .build();

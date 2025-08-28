@@ -51,7 +51,7 @@ public class ProductEntityRepositoryIntegrationTests {
                 savedProduct.getName(),
                 savedProduct.getDescription(),
                 savedProduct.getPrice(),
-                savedProduct.getCategoryEntity().getName()
+                savedProduct.getCategory().getName()
         );
 
         result.ifPresent(product -> log.info("result Product : {}, {}, {}, {}, {}",
@@ -59,7 +59,7 @@ public class ProductEntityRepositoryIntegrationTests {
                 product.getName(),
                 product.getDescription(),
                 product.getPrice(),
-                product.getCategoryEntity().getName()
+                product.getCategory().getName()
         ));
 
         assertThat(result).isPresent();
@@ -130,7 +130,7 @@ public class ProductEntityRepositoryIntegrationTests {
 
         // Find products by electronics category
         Pageable pageable = PageRequest.of(0, 5);
-        Page<ProductEntity> electronicsProducts = underTest.findByCategoryEntity_Name("Electronics", pageable);
+        Page<ProductEntity> electronicsProducts = underTest.findByCategory_Name("Electronics", pageable);
 
         assertThat(electronicsProducts)
                 .hasSize(2)

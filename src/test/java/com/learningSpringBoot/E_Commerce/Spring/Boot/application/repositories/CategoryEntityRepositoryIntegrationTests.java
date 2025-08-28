@@ -25,13 +25,10 @@ public class CategoryEntityRepositoryIntegrationTests {
 
     private final CategoryRepository underTest;
 
-    private final EntityManager entityManager;
-
 
     @Autowired
-    public CategoryEntityRepositoryIntegrationTests(CategoryRepository underTest, EntityManager entityManager) {
+    public CategoryEntityRepositoryIntegrationTests(CategoryRepository underTest) {
         this.underTest = underTest;
-        this.entityManager = entityManager;
     }
 
 
