@@ -34,7 +34,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException("Category with id " + categoryId + " does not exist"));
 
         ProductEntity productEntity = mapper.mapFrom(productDto);
-        productEntity.setCategoryEntity(categoryEntity);
+        productEntity.setCategory(categoryEntity);
 
         productRepository.save(productEntity);
 
@@ -47,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
 
         Page<ProductEntity> productPage;
         if (category != null && !category.isEmpty()) {
-            productPage = productRepository.findByCategoryEntity_Name(category, pageable);
+            productPage = productRepository.findByCategory_Name(category, pageable);
         } else {
             productPage = productRepository.findAll(pageable);
         }
@@ -71,7 +71,5 @@ public class ProductServiceImpl implements ProductService {
         }
         productRepository.deleteById(id);
     }
-
-}
 
 }

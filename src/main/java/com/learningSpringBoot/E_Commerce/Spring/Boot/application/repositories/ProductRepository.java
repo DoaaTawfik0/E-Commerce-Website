@@ -6,5 +6,5 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProductRepository extends JpaRepository<ProductEntity, Integer> {
-    Page<ProductEntity> findByCategoryEntity_Name(String category, Pageable pageable);
+    Page<ProductEntity> findByCategory_Name(String category, Pageable pageable);
 }

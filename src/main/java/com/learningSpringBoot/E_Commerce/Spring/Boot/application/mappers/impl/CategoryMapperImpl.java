@@ -24,8 +24,8 @@ public class CategoryMapperImpl implements Mapper<CategoryEntity, CategoryDto> {
     public CategoryDto mapTo(CategoryEntity categoryEntity) {
         CategoryDto dto = modelMapper.map(categoryEntity, CategoryDto.class);
 
-        if (categoryEntity.getProductEntities() != null) {
-            List<ProductDto> products = categoryEntity.getProductEntities()
+        if (categoryEntity.getProducts() != null) {
+            List<ProductDto> products = categoryEntity.getProducts()
                     .stream()
                     .map(productMapper::mapTo)   // uses ProductMapperImpl
                     .toList();

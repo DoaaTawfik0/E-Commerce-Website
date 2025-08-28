@@ -18,9 +18,9 @@ public class ProductMapperImpl implements Mapper<ProductEntity, ProductDto> {
     public ProductDto mapTo(ProductEntity productEntity) {
         ProductDto product = modelMapper.map(productEntity, ProductDto.class);
 
-        if (productEntity.getCategoryEntity() != null) {
-            product.setCategoryId(productEntity.getCategoryEntity().getCategoryId());
-            product.setCategoryName(productEntity.getCategoryEntity().getName());
+        if (productEntity.getCategory() != null) {
+            product.setCategoryId(productEntity.getCategory().getCategoryId());
+            product.setCategoryName(productEntity.getCategory().getName());
         }
         return product;
     }
