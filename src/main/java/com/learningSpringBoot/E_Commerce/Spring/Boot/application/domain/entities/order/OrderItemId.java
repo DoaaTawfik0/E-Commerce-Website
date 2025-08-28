@@ -1,4 +1,4 @@
-package com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities;
+package com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.order;
 
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
