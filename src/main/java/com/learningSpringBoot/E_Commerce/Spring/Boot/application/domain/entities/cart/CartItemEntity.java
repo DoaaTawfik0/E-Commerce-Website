@@ -24,6 +24,7 @@ public class CartItemEntity {
     @Column(nullable = false)
     private int quantity;
 
+    private Double subtotal;
 
     // Owning side of CartItem <-> Cart relation
     @ManyToOne

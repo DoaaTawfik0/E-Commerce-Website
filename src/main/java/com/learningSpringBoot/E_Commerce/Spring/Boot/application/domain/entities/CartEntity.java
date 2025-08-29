@@ -1,5 +1,6 @@
 package com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.cart.CartItemEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -24,7 +26,7 @@ public class CartEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long cartId;
+    private Integer cartId;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -37,10 +39,11 @@ public class CartEntity {
     // Owning side of Cart <-> User relation
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JsonIgnore
     private UserEntity user;
 
-
     // Inverse side of Cart <-> CartItem relation
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CartItemEntity> cartItems;
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CartItemEntity> cartItems = new ArrayList<>();
+
 }
