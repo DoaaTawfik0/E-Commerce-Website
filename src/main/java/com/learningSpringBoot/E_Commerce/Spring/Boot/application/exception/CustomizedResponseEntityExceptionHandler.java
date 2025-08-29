@@ -28,4 +28,18 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
 
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ErrorDetails> handleEmailAlreadyExists(EmailAlreadyExistsException ex,WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now()
+                , ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(ProductOutOfStockException.class)
+    public ResponseEntity<ErrorDetails> handleProductOutOfStock(ProductOutOfStockException ex,WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now()
+                , ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(errorDetails, HttpStatus.OK);
+    }
 }
