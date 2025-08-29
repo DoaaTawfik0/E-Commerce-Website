@@ -5,8 +5,8 @@ import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.ProductEntity;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.exception.NotFoundException;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.mappers.Mapper;
-import com.learningSpringBoot.E_Commerce.Spring.Boot.application.repositories.CategoryRepository;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.repositories.ProductRepository;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.services.CategoryService;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.services.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,25 +24,26 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
     private final Mapper<ProductEntity, ProductDto> mapper;
 
     @Override
-    public ProductDto saveProduct(ProductDto productDto) {
+    public ProductEntity saveProduct(ProductEntity productEntity) {
+        ProductDto productDto = mapper.mapTo(productEntity);
         int categoryId = productDto.getCategoryId();
-        CategoryEntity categoryEntity = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new NotFoundException("Category with id " + categoryId + " does not exist"));
 
-        ProductEntity productEntity = mapper.mapFrom(productDto);
+        CategoryEntity categoryEntity = categoryService.findCategoryById(categoryId);
+
+        productEntity = mapper.mapFrom(productDto);
         productEntity.setCategory(categoryEntity);
 
         productRepository.save(productEntity);
 
-        return mapper.mapTo(productEntity);
+        return productEntity;
     }
 
     @Override
-    public List<ProductDto> findAll(int page, int size, String category) {
+    public List<ProductEntity> findAll(int page, int size, String category) {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<ProductEntity> productPage;
@@ -52,16 +53,13 @@ public class ProductServiceImpl implements ProductService {
             productPage = productRepository.findAll(pageable);
         }
 
-        return productPage.stream()
-                .map(mapper::mapTo)
-                .toList();
+        return productPage.toList();
     }
 
     @Override
-    public ProductDto findById(int id) {
-        ProductEntity productEntity = productRepository.findById(id)
+    public ProductEntity findById(int id) {
+        return productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product with id " + id + " does not exist"));
-        return mapper.mapTo(productEntity);
     }
 
     @Override
