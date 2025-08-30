@@ -14,9 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("cart")
@@ -65,10 +63,8 @@ public class CartController {
     @DeleteMapping("/{userId}/remove/{productId}")
     public ResponseEntity<CartResponseDto> deleteProductFromCart(@PathVariable Integer userId,
                                                                  @PathVariable Integer productId) {
-        // Add product to cart
 
         CartEntity updatedCart = cartService.deleteProductFromCart(userId, productId);
-        ;
 
         // Map to DTO
         CartResponseDto responseDto = cartMapper.mapTo(updatedCart);

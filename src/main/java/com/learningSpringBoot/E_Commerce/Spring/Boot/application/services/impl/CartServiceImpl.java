@@ -53,6 +53,7 @@ public class CartServiceImpl implements CartService {
             saveNewCartItem(quantity, cart, product);
         }
 
+        cart.setUpdatedAt(LocalDateTime.now());
         cartRepository.save(cart);
 
         /* Reload cart with items */
@@ -61,10 +62,7 @@ public class CartServiceImpl implements CartService {
 
     private void validateStockAvailability(ProductEntity product, Integer quantity) {
         if (product.getStockQuantity() < quantity) {
-            throw new ProductOutOfStockException(
-                    "Product " + product.getName() + " has insufficient stock. " +
-                            "Available: " + product.getStockQuantity() + ", Requested: " + quantity
-            );
+            throw new ProductOutOfStockException(product.getName());
         }
     }
 
@@ -102,7 +100,10 @@ public class CartServiceImpl implements CartService {
         }
 
         CartItemEntity cartItem = cartItemOpt.get();
-        cartItemRepository.delete(cartItem);
+
+        // Let orphanRemoval handle the deletion
+        cart.getCartItems().remove(cartItem);
+        cartItem.setCart(null); // Break the relationship
 
         // Update cart timestamp
         cart.setUpdatedAt(LocalDateTime.now());
