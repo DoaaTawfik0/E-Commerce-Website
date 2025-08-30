@@ -1,14 +1,24 @@
 package com.learningSpringBoot.E_Commerce.Spring.Boot.application;
 
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.CartItemRequestDto;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.CartItemResponseDto;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.CartResponseDto;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.CategoryDto;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.CartEntity;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.CategoryEntity;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.ProductEntity;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.UserEntity;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.cart.CartItemEntity;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.cart.CartItemId;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 @NoArgsConstructor
 public class TestDataUtil {
 
-    /*********************  Category Data Utility Test  *********************/
+    /*  Category Data Utility Test  */
     public static CategoryEntity createTestCategoryEntityA() {
         return CategoryEntity.builder()
                 .name("Sports")
@@ -44,6 +54,7 @@ public class TestDataUtil {
                 .description("Household appliances and kitchenware")
                 .build();
     }
+
     public static CategoryDto createTestCategoryDtoB() {
         return CategoryDto.builder()
                 .name("Books")
@@ -51,7 +62,7 @@ public class TestDataUtil {
                 .build();
     }
 
-    // Product Entity methods
+    /* Product Data Utility Test */
     public static ProductEntity createTestProductEntityA(CategoryEntity category) {
         return ProductEntity.builder()
                 .name("Laptop")
@@ -85,5 +96,94 @@ public class TestDataUtil {
                 .build();
     }
 
+    /*  Cart DTO Data Utility Test  */
+    public static CartItemRequestDto createTestCartItemRequestDto() {
+        return CartItemRequestDto.builder()
+                .quantity(2)
+                .build();
+    }
 
+    public static CartItemResponseDto createTestCartItemResponseDto(Integer productId) {
+        return CartItemResponseDto.builder()
+                .productId(productId)
+                .productName("Test Product")
+                .price(99.99)
+                .quantity(2)
+                .subtotal(199.98)
+                .build();
+    }
+
+    public static CartResponseDto createTestCartResponseDto(Integer cartId, Integer userId) {
+        return CartResponseDto.builder()
+                .cartId(cartId)
+                .userId(userId)
+                .cartItems(new ArrayList<>())
+                .totalAmount(0.0)
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    /* Cart Data Utility Test  */
+    public static CartEntity createTestCartEntityA(UserEntity user) {
+        return CartEntity.builder()
+                .user(user)
+                .cartItems(new ArrayList<>())
+                .build();
+    }
+
+    public static CartEntity createTestCartEntityB(UserEntity user) {
+        return CartEntity.builder()
+                .user(user)
+                .cartItems(new ArrayList<>())
+                .build();
+    }
+
+    /*  CartItem Data Utility Test  */
+    public static CartItemEntity createTestCartItemEntityA(CartEntity cart, ProductEntity product, int quantity) {
+        return CartItemEntity.builder()
+                .cartItemId(new CartItemId(cart.getCartId(), product.getProductId()))
+                .cart(cart)
+                .product(product)
+                .quantity(quantity)
+                .subtotal(quantity * product.getPrice())
+                .build();
+    }
+
+    public static CartItemEntity createTestCartItemEntityB(CartEntity cart, ProductEntity product, int quantity) {
+        return CartItemEntity.builder()
+                .cartItemId(new CartItemId(cart.getCartId(), product.getProductId()))
+                .cart(cart)
+                .product(product)
+                .quantity(quantity)
+                .subtotal(quantity * product.getPrice())
+                .build();
+    }
+
+    /* User Data Utility Test  */
+    public static UserEntity createTestUserEntityA() {
+        return UserEntity.builder()
+                .name("john_doe")
+                .email("john.doe@example.com")
+                .passwordHash("password123")
+                .role("USER")
+                .build();
+    }
+
+    public static UserEntity createTestUserEntityB() {
+        return UserEntity.builder()
+                .name("jane_smith")
+                .email("jane.smith@example.com")
+                .passwordHash("password456")
+                .role("USER")
+                .build();
+    }
+
+    public static UserEntity createTestUserEntityC() {
+        return UserEntity.builder()
+                .name("bob_wilson")
+                .email("bob.wilson@example.com")
+                .passwordHash("password789")
+                .role("ADMIN")
+                .build();
+    }
 }
