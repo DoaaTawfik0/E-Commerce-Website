@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -43,20 +44,28 @@ public class CartServiceImpl implements CartService {
         /* Check if Product exists already in Cart*/
         Optional<CartItemEntity> existingItemOpt = getCartItemEntity(productId, cart);
 
-        /* If Product exists in cart -> quantity && total price will be updated*/
+        // ONLY VALIDATE STOCK, DON'T DEDUCT
+        validateStockAvailability(product, quantity);
+
         if (existingItemOpt.isPresent()) {
             updateExistingCartItem(quantity, existingItemOpt.get());
         } else {
             saveNewCartItem(quantity, cart, product);
         }
 
-        /* Update productQuantity*/
-        checkAndUpdateStockQuantity(quantity, product);
-        /* Save cart into DB*/
         cartRepository.save(cart);
 
         /* Reload cart with items */
         return getCartByIdWithItems(cart.getCartId());
+    }
+
+    private void validateStockAvailability(ProductEntity product, Integer quantity) {
+        if (product.getStockQuantity() < quantity) {
+            throw new ProductOutOfStockException(
+                    "Product " + product.getName() + " has insufficient stock. " +
+                            "Available: " + product.getStockQuantity() + ", Requested: " + quantity
+            );
+        }
     }
 
     @Override
@@ -89,24 +98,14 @@ public class CartServiceImpl implements CartService {
         Optional<CartItemEntity> cartItemOpt = findCartItemByProductId(cart, productId);
 
         if (cartItemOpt.isEmpty()) {
-            // Product exists in DB but not in this cart
-            throw new IllegalStateException(
-                    "Product with id " + productId + " is not in user " + userId + "'s cart."
-            );
+            throw new IllegalStateException("Product with id " + productId + " is not in user " + userId + "'s cart.");
         }
 
         CartItemEntity cartItem = cartItemOpt.get();
-        int quantity = cartItem.getQuantity();
-
-        // Delete cartItem
         cartItemRepository.delete(cartItem);
 
-        // Restore stock
-        ProductEntity product = productService.findById(productId);
-        product.setStockQuantity(product.getStockQuantity() + quantity);
-        productService.saveProduct(product);
-
         // Update cart timestamp
+        cart.setUpdatedAt(LocalDateTime.now());
         cartRepository.save(cart);
 
         return getCartByIdWithItems(cart.getCartId());
@@ -133,9 +132,9 @@ public class CartServiceImpl implements CartService {
                 .product(product)
                 .quantity(quantity)
                 .subtotal(quantity * product.getPrice())
-                .cartItemId(new CartItemId(cart.getCartId(), product.getProductId())) // set composite key
+                .cartItemId(new CartItemId(cart.getCartId(), product.getProductId()))
                 .build();
-        /* Add newItem to cartItemList*/
+
         cart.getCartItems().add(newItem);
 
         cartItemRepository.save(newItem);
@@ -158,4 +157,28 @@ public class CartServiceImpl implements CartService {
                 .findFirst();
     }
 
+    @Override
+    @Transactional
+    public void clearCart(Integer userId) {
+        CartEntity cart = cartRepository.findByUser_userId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart not found for user id: " + userId));
+        clearCartItems(cart.getCartId());
+    }
+
+    @Override
+    @Transactional
+    public void clearCartItems(Integer cartId) {
+        CartEntity cart = getCartByIdWithItems(cartId);
+
+        if (cart.getCartItems() != null && !cart.getCartItems().isEmpty()) {
+            // Clear the collection FIRST
+            cart.getCartItems().clear();
+
+            // Update timestamp and save
+            cart.setUpdatedAt(LocalDateTime.now());
+            cartRepository.save(cart);
+
+            // Let orphanRemoval handle the database deletion
+        }
+    }
 }

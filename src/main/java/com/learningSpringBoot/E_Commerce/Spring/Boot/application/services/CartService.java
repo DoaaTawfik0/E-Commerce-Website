@@ -12,4 +12,8 @@ public interface CartService {
     public CartEntity createCartOrGetExisted(UserEntity user);
 
     CartEntity deleteProductFromCart(Integer userId, Integer productId);
+
+    void clearCart(Integer userId);
+
+    void clearCartItems(Integer cartId);
 }
