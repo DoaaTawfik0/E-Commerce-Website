@@ -1,5 +1,6 @@
 package com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.order.OrderItemEntity;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.order.OrderStatus;
 import jakarta.persistence.*;
@@ -42,9 +43,10 @@ public class OrderEntity {
     // Owning side of relation with (User)
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private UserEntity user;
 
     // Inverse side of relation with (OrderItem)
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OrderItemEntity> orderItems;
 }

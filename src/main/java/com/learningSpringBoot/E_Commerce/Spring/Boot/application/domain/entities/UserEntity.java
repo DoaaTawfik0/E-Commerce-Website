@@ -1,5 +1,7 @@
 package com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -39,11 +41,14 @@ public class UserEntity {
     @NotBlank(message = "Password cannot be empty")
     @Size(min = 6, message = "Password must be at least 6 characters")
     @Column(nullable = false)
+    @JsonIgnore
     private String passwordHash;
 
     @NotBlank(message = "Role is required")
     @Column(nullable = false, length = 20)
     private String role;
+
+    private boolean enabled = false; // only true after email verification
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -54,6 +59,7 @@ public class UserEntity {
     private CartEntity cart;
 
     // Inverse side of relation with (Order)
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<OrderEntity> orders;
 }

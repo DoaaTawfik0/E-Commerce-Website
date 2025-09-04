@@ -43,7 +43,7 @@ public class CartEntity {
     private UserEntity user;
 
     // Inverse side of Cart <-> CartItem relation
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<CartItemEntity> cartItems = new ArrayList<>();
 
 }
