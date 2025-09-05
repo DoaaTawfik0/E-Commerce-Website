@@ -7,12 +7,13 @@ import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.order.OrderItemEntity;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.order.OrderItemId;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.order.OrderStatus;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.exception.EmptyCartException;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.exception.NotFoundException;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.exception.ProductOutOfStockException;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.repositories.OrderRepository;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.services.CartService;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.services.OrderService;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.services.UserService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +39,7 @@ public class OrderServiceImpl implements OrderService {
 
         /* Check if cart has items to do checkout -> else exception will be thrown*/
         if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
-            throw new IllegalStateException("Cannot checkout with empty cart");
+            throw new EmptyCartException();
         }
 
         /* Validate Stock quantity */
@@ -74,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public OrderEntity getOrderById(Integer orderId) {
         return orderRepository.findByIdWithItems(orderId)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + orderId));
+                .orElseThrow(() -> new NotFoundException("Order not found with id: " + orderId));
     }
 
     /**
