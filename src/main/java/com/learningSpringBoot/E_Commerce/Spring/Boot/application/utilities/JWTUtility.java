@@ -1,5 +1,7 @@
 package com.learningSpringBoot.E_Commerce.Spring.Boot.application.utilities;
 
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.exception.InvalidTokenException;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.exception.TokenExpiredException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -56,26 +58,41 @@ public class JWTUtility {
     }
 
     public String extractUsername(String token) {
-        return extractClaims(token).getSubject();
+        Claims claims = extractClaims(token);
+        return claims.getSubject();
     }
 
-    private Claims extractClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+    public boolean isTokenExpired(String token) {
+        Claims claims = extractClaims(token);
+        return claims.getExpiration().before(new Date());
     }
 
     public boolean validateToken(String token, String username, UserDetails userDetails) {
-        return isSameUsername(username, userDetails) && !isTokenExpired(token);
+        try {
+            boolean isSameUser = username.equals(userDetails.getUsername());
+            boolean isNotExpired = !isTokenExpired(token);
+            return isSameUser && isNotExpired;
+        } catch (TokenExpiredException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new InvalidTokenException();
+        }
     }
 
-    private boolean isSameUsername(String username, UserDetails userDetails) {
-        return username.equals(userDetails.getUsername());
+    private Claims extractClaims(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException ex) {
+            log.debug("Token expired: {}", ex.getMessage());
+            throw new TokenExpiredException();
+        } catch (Exception ex) {
+            log.warn("Invalid token: {}", ex.getMessage());
+            throw new InvalidTokenException();
+        }
     }
 
-    public boolean isTokenExpired(String token) throws ExpiredJwtException {
-        return extractClaims(token).getExpiration().before(new Date());
-    }
 }

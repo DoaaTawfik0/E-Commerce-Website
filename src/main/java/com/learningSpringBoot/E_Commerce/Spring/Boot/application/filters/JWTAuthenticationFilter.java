@@ -1,5 +1,7 @@
 package com.learningSpringBoot.E_Commerce.Spring.Boot.application.filters;
 
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.exception.InvalidTokenException;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.exception.TokenExpiredException;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.services.impl.CustomUserDetailsServiceImpl;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.utilities.JWTUtility;
 import jakarta.servlet.FilterChain;
@@ -34,17 +36,49 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-        String username = jwtUtil.extractUsername(token);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        try {
+            String username = jwtUtil.extractUsername(token);
 
-            if (!jwtUtil.isTokenExpired(token)) {
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(auth);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                if (jwtUtil.validateToken(token, username, userDetails)) {
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
             }
+        } catch (TokenExpiredException ex) {
+            handleException(response, "Token expired"
+                    , "Please login again");
+            return;
+        } catch (InvalidTokenException ex) {
+            handleException(response, "Invalid token"
+                    , "Authentication failed");
+            return;
+        } catch (Exception ex) {
+            handleException(response, "Authentication error"
+                    , "Invalid token");
+            return;
         }
+
         filterChain.doFilter(request, response);
+    }
+
+    private void handleException(HttpServletResponse response, String error, String message)
+            throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        String jsonResponse = String.format(
+                "{\"timeStamp\": \"%s\", \"message\": \"%s\", \"details\": \"%s\"}",
+                java.time.LocalDateTime.now(),
+                message,
+                error
+        );
+
+        response.getWriter().write(jsonResponse);
     }
 }
