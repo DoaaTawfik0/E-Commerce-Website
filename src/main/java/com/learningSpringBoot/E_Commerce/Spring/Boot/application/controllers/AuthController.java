@@ -4,6 +4,7 @@ import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.Auth
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.LoginRequestDto;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.RegisterRequestDto;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.services.impl.AuthServiceImpl;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class AuthController {
     private final AuthServiceImpl authService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequestDto request) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequestDto request) {
         return ResponseEntity.ok(authService.register(request));
     }
 
@@ -26,7 +27,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginRequestDto request) {
+    public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginRequestDto request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
