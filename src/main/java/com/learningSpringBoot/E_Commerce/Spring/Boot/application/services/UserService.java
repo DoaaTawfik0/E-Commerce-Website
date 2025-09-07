@@ -1,5 +1,6 @@
 package com.learningSpringBoot.E_Commerce.Spring.Boot.application.services;
 
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.UpdateUserRequestDto;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.UserEntity;
 
 import java.util.List;
@@ -12,4 +13,6 @@ public interface UserService {
     List<UserEntity> findAllUsers();
 
     UserEntity findUserByEmail(String email);
+
+    UserEntity updateUser(Integer userId, UpdateUserRequestDto request);
 }

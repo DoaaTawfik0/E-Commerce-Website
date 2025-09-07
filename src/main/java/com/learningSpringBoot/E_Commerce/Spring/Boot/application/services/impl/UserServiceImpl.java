@@ -1,5 +1,6 @@
 package com.learningSpringBoot.E_Commerce.Spring.Boot.application.services.impl;
 
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.UpdateUserRequestDto;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.UserEntity;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.exception.EmailAlreadyExistsException;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.exception.NotFoundException;
@@ -7,6 +8,7 @@ import com.learningSpringBoot.E_Commerce.Spring.Boot.application.repositories.Us
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -42,4 +44,25 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email)
                 .orElse(null);
     }
+
+
+    @Override
+    @Transactional
+    public UserEntity updateUser(Integer userId, UpdateUserRequestDto request) {
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
+
+        if (request.getName() != null && !request.getName().isEmpty()) {
+            user.setName(request.getName());
+        }
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+            if (userRepository.findByEmail(request.getEmail()).isPresent())
+                throw new EmailAlreadyExistsException(request.getEmail());
+            user.setEmail(request.getEmail());
+        }
+
+        return userRepository.save(user);
+    }
+
 }
