@@ -1,15 +1,11 @@
 package com.learningSpringBoot.E_Commerce.Spring.Boot.application;
 
-import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.CartItemRequestDto;
-import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.CartItemResponseDto;
-import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.CartResponseDto;
-import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.CategoryDto;
-import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.CartEntity;
-import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.CategoryEntity;
-import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.ProductEntity;
-import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.UserEntity;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.*;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.*;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.cart.CartItemEntity;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.cart.CartItemId;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.order.OrderItemEntity;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.order.OrderItemId;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -178,6 +174,42 @@ public class TestDataUtil {
                 .build();
     }
 
+    public static RegisterRequestDto createRegisterReqDtoA() {
+        return RegisterRequestDto.builder()
+                .name("John Doe")
+                .email("john.doe@example.com")
+                .password("password123")
+                .build();
+    }
+
+    public static LoginRequestDto createLoginReqDtoA() {
+        return LoginRequestDto.builder()
+                .email("john.doe@example.com")
+                .password("password123")
+                .build();
+    }
+
+
+    public static UpdateUserRequestDto createUpdateUserReqDtoA() {
+        return UpdateUserRequestDto.builder()
+                .name("updated name")
+                .email("updated@example.com")
+                .build();
+    }
+
+    public static UpdateUserRequestDto createUpdateUserReqDtoPartialData() {
+        return UpdateUserRequestDto.builder()
+                .name("New Name Only")
+                .build();
+    }
+
+    public static UpdateUserRequestDto createUpdateUserReqDto_WithInvalidMail() {
+        return UpdateUserRequestDto.builder()
+                .name("updated name")
+                .email("updated Email")
+                .build();
+    }
+
     public static UserEntity createTestUserEntityC() {
         return UserEntity.builder()
                 .name("bob_wilson")
@@ -185,5 +217,35 @@ public class TestDataUtil {
                 .passwordHash("password789")
                 .role("ADMIN")
                 .build();
+    }
+
+    /* OrderItem Data Utility Test - Enhanced */
+    public static OrderItemEntity createTestOrderItemEntityA(ProductEntity product, OrderEntity order) {
+        OrderItemEntity item = OrderItemEntity.builder()
+                .product(product)
+                .order(order)
+                .quantity(2)
+                .priceAtPurchase(100.10)
+                .build();
+
+        // Set the composite key manually
+        if (order != null && order.getOrderId() != null) {
+            item.setOrderItemId(new OrderItemId(order.getOrderId(), product.getProductId()));
+        }
+        return item;
+    }
+
+    public static OrderItemEntity createTestOrderItemEntityB(ProductEntity product, OrderEntity order) {
+        OrderItemEntity item = OrderItemEntity.builder()
+                .product(product)
+                .order(order)
+                .quantity(1)
+                .priceAtPurchase(140.0)
+                .build();
+
+        if (order != null && order.getOrderId() != null) {
+            item.setOrderItemId(new OrderItemId(order.getOrderId(), product.getProductId()));
+        }
+        return item;
     }
 }
