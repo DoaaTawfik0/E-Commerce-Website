@@ -68,6 +68,7 @@ public class CategoryControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     public void testFindAllCategories_ReturnsRightCategories() throws Exception {
         CategoryDto testCategoryDtoA = TestDataUtil.createTestCategoryDtoA();
         CategoryDto testCategoryDtoB = TestDataUtil.createTestCategoryDtoB();
