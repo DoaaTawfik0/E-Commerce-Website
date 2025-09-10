@@ -2,6 +2,7 @@ package com.learningSpringBoot.E_Commerce.Spring.Boot.application.repositories;
 
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.CartEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,4 +15,8 @@ public interface CartRepository extends JpaRepository<CartEntity, Integer> {
 
     @Query("SELECT c FROM CartEntity c LEFT JOIN FETCH c.cartItems WHERE c.cartId = :id")
     Optional<CartEntity> findByIdWithItems(@Param("id") Integer id);
+
+    @Modifying
+    @Query("DELETE FROM CartItemEntity c WHERE c.cart.cartId = :cartId")
+    void deleteAllCartItems(@Param("cartId") Integer cartId);
 }
