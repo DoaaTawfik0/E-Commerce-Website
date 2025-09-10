@@ -183,4 +183,4 @@ This project provides a **production-ready foundation** for any e-commerce platf
 
 ---
 
-** Pro Tip**: Start by exploring the Swagger UI at `http://localhost:8080/swagger-ui.html` to understand all available endpoints and try them out interactively!
+#### Pro Tip: Start by exploring the Swagger UI at `http://localhost:8080/swagger-ui.html` to understand all available endpoints and try them out interactively!
