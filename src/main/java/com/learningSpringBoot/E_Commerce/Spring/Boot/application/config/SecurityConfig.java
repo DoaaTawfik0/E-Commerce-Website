@@ -5,6 +5,7 @@ import com.learningSpringBoot.E_Commerce.Spring.Boot.application.services.impl.C
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -30,12 +31,29 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        /* Auth endpoints */
                         .requestMatchers("/auth/**").permitAll()
+                        /* Swagger endpoints */
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
+                        /* Categories endpoints */
+                        .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                        .requestMatchers("/categories").hasRole("ADMIN")
+                        /*Products endpoints */
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers("/products/**").hasRole("ADMIN")
+                        /* Cart endpoints */
+                        .requestMatchers("/cart/**").hasRole("USER")
+                        /* Users endpoints */
+                        .requestMatchers("/users/me").authenticated()
+                        .requestMatchers("/users/**").hasAnyRole("USER","ADMIN")
+                        /* Orders endpoints */
+                        .requestMatchers(HttpMethod.POST, "/orders/**").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/orders/**").hasAnyRole("USER","ADMIN")
+                        /* Any other request*/
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
