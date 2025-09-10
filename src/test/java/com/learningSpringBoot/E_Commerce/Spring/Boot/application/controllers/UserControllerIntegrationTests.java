@@ -2,7 +2,6 @@ package com.learningSpringBoot.E_Commerce.Spring.Boot.application.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.TestDataUtil;
-import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.CustomUserDetails;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.UpdateUserRequestDto;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.UserEntity;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.repositories.UserRepository;
@@ -13,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -45,16 +42,10 @@ public class UserControllerIntegrationTests {
     public void setup() {
         userRepository.deleteAll();
         testUser = userRepository.save(TestDataUtil.createTestUserEntityA());
-
-        // Set up authentication context
-        CustomUserDetails userDetails = new CustomUserDetails(testUser);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities()
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test
+    @WithMockUser(username = "john.doe@example.com", roles = "USER")
     public void testGetCurrentUser_ReturnsAuthenticatedUser() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/users/me"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -65,6 +56,7 @@ public class UserControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(username = "john.doe@example.com", roles = {"ADMIN"})
     public void testUpdateUser_WithValidData_ReturnsUpdatedUser() throws Exception {
         UpdateUserRequestDto updateRequest = TestDataUtil.createUpdateUserReqDtoA();
 
@@ -78,8 +70,8 @@ public class UserControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(username = "john.doe@example.com", roles = {"USER"})
     public void testUpdateUser_WithPartialData_UpdatesOnlyProvidedFields() throws Exception {
-        // Update only name
         UpdateUserRequestDto updateRequest = TestDataUtil.createUpdateUserReqDtoPartialData();
 
         mockMvc.perform(MockMvcRequestBuilders.put("/users/{userId}", testUser.getUserId())
@@ -89,13 +81,13 @@ public class UserControllerIntegrationTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("New Name Only"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(testUser.getEmail()));
 
-        // Verify in database
         UserEntity updatedUser = userRepository.findById(testUser.getUserId()).orElseThrow();
         assertThat(updatedUser.getName()).isEqualTo("New Name Only");
         assertThat(updatedUser.getEmail()).isEqualTo(testUser.getEmail());
     }
 
     @Test
+    @WithMockUser(username = "john.doe@example.com", roles = {"ADMIN"})
     public void testUpdateUser_WithNonExistentUserId_ReturnsNotFound() throws Exception {
         UpdateUserRequestDto updateRequest = TestDataUtil.createUpdateUserReqDtoA();
 
@@ -106,12 +98,11 @@ public class UserControllerIntegrationTests {
     }
 
     @Test
-    public void testUpdateUser_WithExistingEmail_ReturnsBadRequest() throws Exception {
-        // Create another user with a different email
+    @WithMockUser(username = "john.doe@example.com", roles = {"ADMIN"})
+    public void testUpdateUser_WithExistingEmail_ReturnsConflict() throws Exception {
         UserEntity anotherUser = TestDataUtil.createTestUserEntityB();
         userRepository.save(anotherUser);
 
-        // Try to update test user with the same email
         UpdateUserRequestDto updateRequest = TestDataUtil.createUpdateUserReqDtoA();
         updateRequest.setEmail("jane.smith@example.com");
 
@@ -122,6 +113,7 @@ public class UserControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(username = "john.doe@example.com", roles = {"USER"})
     public void testUpdateUser_WithInvalidEmailFormat_ReturnsBadRequest() throws Exception {
         UpdateUserRequestDto updateRequest = TestDataUtil.createUpdateUserReqDto_WithInvalidMail();
 
@@ -132,6 +124,7 @@ public class UserControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(username = "john.doe@example.com", roles = {"USER"})
     public void testUpdateUser_WithEmptyName_ReturnsBadRequest() throws Exception {
         UpdateUserRequestDto updateRequest = TestDataUtil.createUpdateUserReqDtoA();
         updateRequest.setName("");
@@ -144,8 +137,8 @@ public class UserControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(username = "john.doe@example.com", roles = {"ADMIN"})
     public void testUpdateUser_PreservesOtherFields() throws Exception {
-        // Store original values
         String originalPassword = testUser.getPasswordHash();
         String originalRole = testUser.getRole();
         Boolean originalEnabled = testUser.isEnabled();
@@ -157,7 +150,6 @@ public class UserControllerIntegrationTests {
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
-        // Verify other fields are preserved
         UserEntity updatedUser = userRepository.findById(testUser.getUserId()).orElseThrow();
         assertThat(updatedUser.getPasswordHash()).isEqualTo(originalPassword);
         assertThat(updatedUser.getRole()).isEqualTo(originalRole);
