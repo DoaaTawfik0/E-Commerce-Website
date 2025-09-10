@@ -6,25 +6,25 @@ A complete backend for an e-commerce platform built with Spring Boot. This RESTf
 
 ## Key Objectives Achieved
 
--  **RESTful API Development** - Complete e-commerce functionality
--  **JWT Authentication** - Secure user authentication and authorization  
--  **Email Verification** - SMTP-based account verification system
--  **Product Pagination & Filtering** - Efficient product browsing
--  **File Upload Support** - Product image management
--  **Input Validation** - Robust data integrity checks
--  **Comprehensive Exception Handling** - Graceful error management
--  **Unit Testing** - Extensive test coverage
--  **Spring Data JPA with PostgreSQL** - Production-ready database layer
+-  **RESTful API Development** :: Complete e-commerce functionality
+-  **JWT Authentication** :: Secure user authentication and authorization  
+-  **Email Verification** :: SMTP-based account verification system
+-  **Product Pagination & Filtering** :: Efficient product browsing
+-  **File Upload Support** :: Product image management
+-  **Input Validation** :: Robust data integrity checks
+-  **Comprehensive Exception Handling** :: Graceful error management
+-  **Unit Testing** :: Extensive test coverage
+-  **Spring Data JPA with PostgreSQL** :: Production-ready database layer
 
 ## System Architecture
 
 ### Core Entities
-- **User** - Customers and administrators with role-based access
-- **Product** - Catalog items with inventory management
-- **Category** - Product organization system
-- **Order** - Customer purchases with status tracking
-- **OrderItem** - Individual products within orders
-- **Cart** - User shopping sessions with persistent storage
+- **User** :: Customers and administrators with role-based access
+- **Product** :: Catalog items with inventory management
+- **Category** :: Product organization system
+- **Order** :: Customer purchases with status tracking
+- **OrderItem** :: Individual products within orders
+- **Cart** :: User shopping sessions with persistent storage
 
 ### Database Relationships
 ```
