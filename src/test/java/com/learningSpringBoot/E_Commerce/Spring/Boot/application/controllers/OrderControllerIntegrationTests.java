@@ -3,6 +3,7 @@ package com.learningSpringBoot.E_Commerce.Spring.Boot.application.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.TestDataUtil;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.CartItemRequestDto;
+import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.OrderDetailsResponseDto;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.dto.OrderResponseDto;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.CartEntity;
 import com.learningSpringBoot.E_Commerce.Spring.Boot.application.domain.entities.CategoryEntity;
@@ -33,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
-@WithMockUser
 public class OrderControllerIntegrationTests {
 
     @Autowired
@@ -65,7 +65,7 @@ public class OrderControllerIntegrationTests {
 
     private UserEntity user;
     private CategoryEntity category;
-    private Long createdOrderId;
+
 
     @BeforeEach
     public void setup() {
@@ -79,13 +79,17 @@ public class OrderControllerIntegrationTests {
     private Integer createOrder() throws Exception {
         String response = mockMvc.perform(MockMvcRequestBuilders.post("/orders/{userId}/checkout", user.getUserId())
                         .contentType(MediaType.APPLICATION_JSON))
-                .andReturn().getResponse().getContentAsString();
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
-        OrderResponseDto orderResponse = objectMapper.readValue(response, OrderResponseDto.class);
+        OrderDetailsResponseDto orderResponse = objectMapper.readValue(response, OrderDetailsResponseDto.class);
         return orderResponse.getOrderId();
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testCheckout_Returns200() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/orders/{userId}/checkout", user.getUserId())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -93,6 +97,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testCheckout_StatusIsProcessing() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/orders/{userId}/checkout", user.getUserId())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -100,6 +105,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testCheckout_CountExistingItems() throws Exception {
         ProductEntity product1 = productRepository.save(TestDataUtil.createTestProductEntityB(category));
         CartItemRequestDto cartItemRequestDto = CartItemRequestDto.builder().quantity(2).build();
@@ -114,6 +120,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testCheckout_CheckOrderItemDetails() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/orders/{userId}/checkout", user.getUserId())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -123,6 +130,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testCheckOut_CheckTotalAmount() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/orders/{userId}/checkout", user.getUserId())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -130,6 +138,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testGetUserOrders_Returns200() throws Exception {
         createOrder();
 
@@ -139,6 +148,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testGetUserOrders_ReturnsExpectedOrdersCount_2() throws Exception {
         /* checkout first Order*/
         createOrder();
@@ -160,6 +170,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testGetUserOrders_ReturnsExpectedTotalAmount() throws Exception {
         createOrder();
 
@@ -170,6 +181,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testGetUserOrders_CheckCreatedDate() throws Exception {
         // Create an order first
         createOrder();
@@ -193,6 +205,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testCheckout_WithInvalidUserId_ReturnsNotFound() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/orders/{userId}/checkout", 999)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -200,6 +213,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testCheckout_WithEmptyCart_ReturnsBadRequest() throws Exception {
         // Create a new user with empty cart
         UserEntity newUser = userRepository.save(TestDataUtil.createTestUserEntityB());
@@ -211,6 +225,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testGetUserOrders_WithNoOrders_ReturnsEmptyList() throws Exception {
         // Create a new user with no orders
         UserEntity newUser = userRepository.save(TestDataUtil.createTestUserEntityB());
@@ -222,6 +237,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testCheckout_ClearsUserCartAfterSuccess() throws Exception {
         // Perform checkout
         mockMvc.perform(MockMvcRequestBuilders.post("/orders/{userId}/checkout", user.getUserId())
@@ -236,6 +252,7 @@ public class OrderControllerIntegrationTests {
 
     // Tests for @GetMapping("/{orderId}") endpoint
     @Test
+    @WithMockUser(roles = "USER")
     public void testGetOrderById_Returns200() throws Exception {
         Integer orderId = createOrder();
 
@@ -245,6 +262,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testGetOrderById_ReturnsCorrectOrder() throws Exception {
         Integer orderId = createOrder();
 
@@ -260,6 +278,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testGetOrderById_WithInvalidOrderId_ReturnsNotFound() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/orders/{orderId}", 999)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -267,6 +286,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testGetOrderById_CheckOrderBelongsToUser() throws Exception {
         Integer orderId = createOrder();
 
@@ -280,6 +300,7 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testGetOrderById_CheckCreatedDate() throws Exception {
         Integer orderId = createOrder();
 
@@ -291,5 +312,29 @@ public class OrderControllerIntegrationTests {
 
         assertThat(order.getCreatedAt()).isBefore(LocalDateTime.now());
         assertThat(order.getCreatedAt()).isAfter(LocalDateTime.now().minusMinutes(5)); // Should be recent
+    }
+
+    // ================== ADMIN ROLE TESTS ==================
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testGetUserOrders_AsAdmin_Returns200() throws Exception {
+        Integer orderId = createOrder();
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/orders/user/{userId}", user.getUserId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testGetOrderById_AsAdmin_Returns200() throws Exception {
+        Integer orderId = createOrder();
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/orders/{orderId}", orderId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.orderId").value(orderId));
     }
 }
