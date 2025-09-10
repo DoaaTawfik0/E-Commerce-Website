@@ -12,6 +12,7 @@ import com.learningSpringBoot.E_Commerce.Spring.Boot.application.services.UserSe
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -19,6 +20,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("cart")
 @AllArgsConstructor
+@PreAuthorize("hasRole('USER')")
 public class CartController {
 
     private final UserService userService;
