@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class ProductController {
     private final Mapper<ProductEntity, ProductDto> mapper;
 
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto) {
         ProductEntity savedProduct = productService.saveProduct(mapper.mapFrom(productDto));
         return new ResponseEntity<>(mapper.mapTo(savedProduct), HttpStatus.CREATED);
@@ -51,6 +53,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteProductById(@PathVariable int id) {
         productService.deleteById(id);
 
