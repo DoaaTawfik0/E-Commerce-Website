@@ -9,6 +9,7 @@ import com.learningSpringBoot.E_Commerce.Spring.Boot.application.services.Catego
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,6 +51,7 @@ public class CategoryController {
     }
 
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryDto> createNewCategory(@RequestBody CategoryDto category) {
         CategoryEntity categoryEntity = mapper.mapFrom(category);
         // Call the service method for creation
@@ -59,6 +61,7 @@ public class CategoryController {
 
     // Add this new endpoint for updates
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryDto> updateExistingCategory(
             @PathVariable("id") Integer id,
             @RequestBody CategoryDto category) {
