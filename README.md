@@ -10,7 +10,6 @@ A complete backend for an e-commerce platform built with Spring Boot. This RESTf
 -  **JWT Authentication** :: Secure user authentication and authorization  
 -  **Email Verification** :: SMTP-based account verification system
 -  **Product Pagination & Filtering** :: Efficient product browsing
--  **File Upload Support** :: Product image management
 -  **Input Validation** :: Robust data integrity checks
 -  **Comprehensive Exception Handling** :: Graceful error management
 -  **Unit Testing** :: Extensive test coverage
